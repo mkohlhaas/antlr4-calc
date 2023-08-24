@@ -191,6 +191,16 @@ func (s *StartContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
+func (s *StartContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CalcVisitor:
+		return t.VisitStart(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
 func (p *CalcParser) Start_() (localctx IStartContext) {
 	localctx = NewStartContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 0, CalcParserRULE_start)
@@ -309,6 +319,16 @@ func (s *NumberContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
+func (s *NumberContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CalcVisitor:
+		return t.VisitNumber(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
 type MulDivContext struct {
 	ExpressionContext
 	op antlr.Token
@@ -393,6 +413,16 @@ func (s *MulDivContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
+func (s *MulDivContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CalcVisitor:
+		return t.VisitMulDiv(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
 type AddSubContext struct {
 	ExpressionContext
 	op antlr.Token
@@ -474,6 +504,16 @@ func (s *AddSubContext) EnterRule(listener antlr.ParseTreeListener) {
 func (s *AddSubContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CalcListener); ok {
 		listenerT.ExitAddSub(s)
+	}
+}
+
+func (s *AddSubContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CalcVisitor:
+		return t.VisitAddSub(s)
+
+	default:
+		return t.VisitChildren(s)
 	}
 }
 

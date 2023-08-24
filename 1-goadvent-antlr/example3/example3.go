@@ -1,12 +1,12 @@
-// example.go
 package main
 
 import (
 	"fmt"
 	"strconv"
 
-	"./parser"
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"calc/parser"
+
+	"github.com/antlr4-go/antlr/v4"
 )
 
 type calcListener struct {
@@ -85,7 +85,7 @@ func calc(input string) int {
 
 	// Finally parse the expression (by walking the tree)
 	var listener calcListener
-	antlr.ParseTreeWalkerDefault.Walk(&listener, p.Start())
+	antlr.ParseTreeWalkerDefault.Walk(&listener, p.Start_())
 
 	return listener.pop()
 }

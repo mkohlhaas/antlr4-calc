@@ -1,11 +1,3 @@
-// This file is part of go-antlr-calc.
-//
-// Copyright (C) 2020  David Gamba Rios
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 //go:generate ./antlr4 -Xexact-output-dir -o parser -visitor -Dlanguage=Go ./LabeledExpr.g4
 package main
 
@@ -21,10 +13,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DavidGamba/go-antlr-calc/parser"
+	"calc/parser"
 
 	"github.com/DavidGamba/go-getoptions"
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr4-go/antlr/v4"
 )
 
 var logger = log.New(ioutil.Discard, "", log.LstdFlags)
@@ -36,7 +28,7 @@ func main() {
 	var file string
 	opt := getoptions.New()
 	opt.Self("", "Antlr based calculator.\n\n    Call with no arguments to enter repl")
-	opt.HelpSynopsisArgs("[<single statement>]")
+	// opt.HelpSynopsisArgs("[<single statement>]")
 	opt.Bool("help", false, opt.Alias("?"))
 	opt.Bool("debug", false, opt.Description("Show debug output"))
 	opt.BoolVar(&echo, "echo", false, opt.Description("Enable echo in REPL"))

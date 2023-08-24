@@ -1,10 +1,12 @@
 .PHONY:all listen visitor
 
-all:listen visitor
+all: listen visitor
 
-listen:
-	antlr4 -Dlanguage=Go -o listenparser Calc.g4
-	go build -o listener_example listen/main.go
-visitor:
-	antlr4 -Dlanguage=Go -no-listener -visitor -o visitorparser Calc.g4
-	go build -o visitor_example visitor/main.go
+genParser:
+	antlr4 -Dlanguage=Go -listener -visitor parser/Calc.g4
+
+listen: genParser
+	go build -o calc_listen listen/main.go
+
+visitor: genParser
+	go build -o calc_visit visitor/main.go

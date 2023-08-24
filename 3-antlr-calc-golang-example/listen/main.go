@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"calc/parser"
+
+	"github.com/antlr4-go/antlr/v4"
 	"github.com/c-bata/go-prompt"
-	parser "github.com/thesues/antlr-calc-golang-example/listenparser"
 )
 
 type calcListener struct {
@@ -83,7 +84,7 @@ func calc(input string) int {
 
 	// Finally parse the expression (by walking the tree)
 	var listener calcListener
-	antlr.ParseTreeWalkerDefault.Walk(&listener, p.Start())
+	antlr.ParseTreeWalkerDefault.Walk(&listener, p.Start_())
 
 	return listener.pop()
 

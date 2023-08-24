@@ -1,13 +1,14 @@
-//for vistor pattern
+// for vistor pattern
 package main
 
 import (
 	"fmt"
 	"strconv"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"calc/parser"
+
+	"github.com/antlr4-go/antlr/v4"
 	prompt "github.com/c-bata/go-prompt"
-	parser "github.com/thesues/antlr-calc-golang-example/visitorparser"
 )
 
 type Visitor struct {
@@ -117,7 +118,7 @@ func calc(input string) int {
 
 	v := NewVisitor()
 	//Start is rule name of Calc.g4
-	p.Start().Accept(v)
+	p.Start_().Accept(v)
 	return v.pop()
 }
 
