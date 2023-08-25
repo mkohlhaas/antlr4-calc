@@ -1,4 +1,3 @@
-// Calc.g4
 grammar Calc;
 
 // Tokens

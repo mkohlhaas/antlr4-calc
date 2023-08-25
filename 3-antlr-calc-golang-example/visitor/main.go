@@ -38,16 +38,16 @@ func (l *Visitor) pop() int {
 	return result
 }
 
-func (v *Visitor) visitRule(node antlr.RuleNode) interface{} {
+func (v *Visitor) visit(node antlr.RuleNode) any {
 	node.Accept(v)
 	return nil
 }
 
-func (v *Visitor) VisitStart(ctx *parser.StartContext) interface{} {
-	return v.visitRule(ctx.Expression())
+func (v *Visitor) VisitStart(ctx *parser.StartContext) any {
+	return v.visit(ctx.Expression())
 }
 
-func (v *Visitor) VisitNumber(ctx *parser.NumberContext) interface{} {
+func (v *Visitor) VisitNumber(ctx *parser.NumberContext) any {
 	i, err := strconv.Atoi(ctx.NUMBER().GetText())
 	if err != nil {
 		panic(err.Error())
@@ -57,10 +57,10 @@ func (v *Visitor) VisitNumber(ctx *parser.NumberContext) interface{} {
 	return nil
 }
 
-func (v *Visitor) VisitMulDiv(ctx *parser.MulDivContext) interface{} {
+func (v *Visitor) VisitMulDiv(ctx *parser.MulDivContext) any {
 	//push expression result to stack
-	v.visitRule(ctx.Expression(0))
-	v.visitRule(ctx.Expression(1))
+	v.visit(ctx.Expression(0))
+	v.visit(ctx.Expression(1))
 	//push result to stack
 	var t antlr.Token = ctx.GetOp()
 	right := v.pop()
@@ -76,10 +76,10 @@ func (v *Visitor) VisitMulDiv(ctx *parser.MulDivContext) interface{} {
 	return nil
 }
 
-func (v *Visitor) VisitAddSub(ctx *parser.AddSubContext) interface{} {
+func (v *Visitor) VisitAddSub(ctx *parser.AddSubContext) any {
 	//push expression result to stack
-	v.visitRule(ctx.Expression(0))
-	v.visitRule(ctx.Expression(1))
+	v.visit(ctx.Expression(0))
+	v.visit(ctx.Expression(1))
 
 	//push result to stack
 	var t antlr.Token = ctx.GetOp()
@@ -97,17 +97,17 @@ func (v *Visitor) VisitAddSub(ctx *parser.AddSubContext) interface{} {
 	return nil
 }
 
-func (v *Visitor) VisitParenthesis(ctx *parser.ParenthesisContext) interface{} {
-	v.visitRule(ctx.Expression())
+func (v *Visitor) VisitParenthesis(ctx *parser.ParenthesisContext) any {
+	v.visit(ctx.Expression())
 	return nil
 }
 
 func calc(input string) int {
 
-	is := antlr.NewInputStream(input)
+	inputStream := antlr.NewInputStream(input)
 
 	// Create the Lexer
-	lexer := parser.NewCalcLexer(is)
+	lexer := parser.NewCalcLexer(inputStream)
 	tokens := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 
 	// Create the Parser
