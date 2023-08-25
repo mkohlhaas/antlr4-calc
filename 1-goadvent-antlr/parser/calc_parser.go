@@ -39,7 +39,7 @@ func calcParserInit() {
 		"", "MUL", "DIV", "ADD", "SUB", "NUMBER", "WHITESPACE",
 	}
 	staticData.RuleNames = []string{
-		"start", "expression",
+		"start", "expr",
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
@@ -100,8 +100,8 @@ const (
 
 // CalcParser rules.
 const (
-	CalcParserRULE_start      = 0
-	CalcParserRULE_expression = 1
+	CalcParserRULE_start = 0
+	CalcParserRULE_expr  = 1
 )
 
 // IStartContext is an interface to support dynamic dispatch.
@@ -112,7 +112,7 @@ type IStartContext interface {
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	Expression() IExpressionContext
+	Expr() IExprContext
 	EOF() antlr.TerminalNode
 
 	// IsStartContext differentiates from other interfaces.
@@ -151,10 +151,10 @@ func NewStartContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoki
 
 func (s *StartContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *StartContext) Expression() IExpressionContext {
+func (s *StartContext) Expr() IExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExpressionContext); ok {
+		if _, ok := ctx.(IExprContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -164,7 +164,7 @@ func (s *StartContext) Expression() IExpressionContext {
 		return nil
 	}
 
-	return t.(IExpressionContext)
+	return t.(IExprContext)
 }
 
 func (s *StartContext) EOF() antlr.TerminalNode {
@@ -207,7 +207,7 @@ func (p *CalcParser) Start_() (localctx IStartContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(4)
-		p.expression(0)
+		p.expr(0)
 	}
 	{
 		p.SetState(5)
@@ -231,70 +231,70 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IExpressionContext is an interface to support dynamic dispatch.
-type IExpressionContext interface {
+// IExprContext is an interface to support dynamic dispatch.
+type IExprContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-	// IsExpressionContext differentiates from other interfaces.
-	IsExpressionContext()
+	// IsExprContext differentiates from other interfaces.
+	IsExprContext()
 }
 
-type ExpressionContext struct {
+type ExprContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyExpressionContext() *ExpressionContext {
-	var p = new(ExpressionContext)
+func NewEmptyExprContext() *ExprContext {
+	var p = new(ExprContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = CalcParserRULE_expression
+	p.RuleIndex = CalcParserRULE_expr
 	return p
 }
 
-func InitEmptyExpressionContext(p *ExpressionContext) {
+func InitEmptyExprContext(p *ExprContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = CalcParserRULE_expression
+	p.RuleIndex = CalcParserRULE_expr
 }
 
-func (*ExpressionContext) IsExpressionContext() {}
+func (*ExprContext) IsExprContext() {}
 
-func NewExpressionContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ExpressionContext {
-	var p = new(ExpressionContext)
+func NewExprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ExprContext {
+	var p = new(ExprContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = CalcParserRULE_expression
+	p.RuleIndex = CalcParserRULE_expr
 
 	return p
 }
 
-func (s *ExpressionContext) GetParser() antlr.Parser { return s.parser }
+func (s *ExprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ExpressionContext) CopyAll(ctx *ExpressionContext) {
+func (s *ExprContext) CopyAll(ctx *ExprContext) {
 	s.CopyFrom(&ctx.BaseParserRuleContext)
 }
 
-func (s *ExpressionContext) GetRuleContext() antlr.RuleContext {
+func (s *ExprContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ExpressionContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *ExprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 type NumberContext struct {
-	ExpressionContext
+	ExprContext
 }
 
 func NewNumberContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *NumberContext {
 	var p = new(NumberContext)
 
-	InitEmptyExpressionContext(&p.ExpressionContext)
+	InitEmptyExprContext(&p.ExprContext)
 	p.parser = parser
-	p.CopyAll(ctx.(*ExpressionContext))
+	p.CopyAll(ctx.(*ExprContext))
 
 	return p
 }
@@ -330,16 +330,16 @@ func (s *NumberContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 }
 
 type MulDivContext struct {
-	ExpressionContext
+	ExprContext
 	op antlr.Token
 }
 
 func NewMulDivContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *MulDivContext {
 	var p = new(MulDivContext)
 
-	InitEmptyExpressionContext(&p.ExpressionContext)
+	InitEmptyExprContext(&p.ExprContext)
 	p.parser = parser
-	p.CopyAll(ctx.(*ExpressionContext))
+	p.CopyAll(ctx.(*ExprContext))
 
 	return p
 }
@@ -352,20 +352,20 @@ func (s *MulDivContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *MulDivContext) AllExpression() []IExpressionContext {
+func (s *MulDivContext) AllExpr() []IExprContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
-		if _, ok := ctx.(IExpressionContext); ok {
+		if _, ok := ctx.(IExprContext); ok {
 			len++
 		}
 	}
 
-	tst := make([]IExpressionContext, len)
+	tst := make([]IExprContext, len)
 	i := 0
 	for _, ctx := range children {
-		if t, ok := ctx.(IExpressionContext); ok {
-			tst[i] = t.(IExpressionContext)
+		if t, ok := ctx.(IExprContext); ok {
+			tst[i] = t.(IExprContext)
 			i++
 		}
 	}
@@ -373,11 +373,11 @@ func (s *MulDivContext) AllExpression() []IExpressionContext {
 	return tst
 }
 
-func (s *MulDivContext) Expression(i int) IExpressionContext {
+func (s *MulDivContext) Expr(i int) IExprContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExpressionContext); ok {
+		if _, ok := ctx.(IExprContext); ok {
 			if j == i {
 				t = ctx.(antlr.RuleContext)
 				break
@@ -390,7 +390,7 @@ func (s *MulDivContext) Expression(i int) IExpressionContext {
 		return nil
 	}
 
-	return t.(IExpressionContext)
+	return t.(IExprContext)
 }
 
 func (s *MulDivContext) MUL() antlr.TerminalNode {
@@ -424,16 +424,16 @@ func (s *MulDivContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 }
 
 type AddSubContext struct {
-	ExpressionContext
+	ExprContext
 	op antlr.Token
 }
 
 func NewAddSubContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *AddSubContext {
 	var p = new(AddSubContext)
 
-	InitEmptyExpressionContext(&p.ExpressionContext)
+	InitEmptyExprContext(&p.ExprContext)
 	p.parser = parser
-	p.CopyAll(ctx.(*ExpressionContext))
+	p.CopyAll(ctx.(*ExprContext))
 
 	return p
 }
@@ -446,20 +446,20 @@ func (s *AddSubContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *AddSubContext) AllExpression() []IExpressionContext {
+func (s *AddSubContext) AllExpr() []IExprContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
-		if _, ok := ctx.(IExpressionContext); ok {
+		if _, ok := ctx.(IExprContext); ok {
 			len++
 		}
 	}
 
-	tst := make([]IExpressionContext, len)
+	tst := make([]IExprContext, len)
 	i := 0
 	for _, ctx := range children {
-		if t, ok := ctx.(IExpressionContext); ok {
-			tst[i] = t.(IExpressionContext)
+		if t, ok := ctx.(IExprContext); ok {
+			tst[i] = t.(IExprContext)
 			i++
 		}
 	}
@@ -467,11 +467,11 @@ func (s *AddSubContext) AllExpression() []IExpressionContext {
 	return tst
 }
 
-func (s *AddSubContext) Expression(i int) IExpressionContext {
+func (s *AddSubContext) Expr(i int) IExprContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExpressionContext); ok {
+		if _, ok := ctx.(IExprContext); ok {
 			if j == i {
 				t = ctx.(antlr.RuleContext)
 				break
@@ -484,7 +484,7 @@ func (s *AddSubContext) Expression(i int) IExpressionContext {
 		return nil
 	}
 
-	return t.(IExpressionContext)
+	return t.(IExprContext)
 }
 
 func (s *AddSubContext) ADD() antlr.TerminalNode {
@@ -517,19 +517,19 @@ func (s *AddSubContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *CalcParser) Expression() (localctx IExpressionContext) {
-	return p.expression(0)
+func (p *CalcParser) Expr() (localctx IExprContext) {
+	return p.expr(0)
 }
 
-func (p *CalcParser) expression(_p int) (localctx IExpressionContext) {
+func (p *CalcParser) expr(_p int) (localctx IExprContext) {
 	var _parentctx antlr.ParserRuleContext = p.GetParserRuleContext()
 
 	_parentState := p.GetState()
-	localctx = NewExpressionContext(p, p.GetParserRuleContext(), _parentState)
-	var _prevctx IExpressionContext = localctx
+	localctx = NewExprContext(p, p.GetParserRuleContext(), _parentState)
+	var _prevctx IExprContext = localctx
 	var _ antlr.ParserRuleContext = _prevctx // TODO: To prevent unused variable warning.
 	_startState := 2
-	p.EnterRecursionRule(localctx, 2, CalcParserRULE_expression, _p)
+	p.EnterRecursionRule(localctx, 2, CalcParserRULE_expr, _p)
 	var _la int
 
 	var _alt int
@@ -572,8 +572,8 @@ func (p *CalcParser) expression(_p int) (localctx IExpressionContext) {
 
 			switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 0, p.GetParserRuleContext()) {
 			case 1:
-				localctx = NewMulDivContext(p, NewExpressionContext(p, _parentctx, _parentState))
-				p.PushNewRecursionContext(localctx, _startState, CalcParserRULE_expression)
+				localctx = NewMulDivContext(p, NewExprContext(p, _parentctx, _parentState))
+				p.PushNewRecursionContext(localctx, _startState, CalcParserRULE_expr)
 				p.SetState(10)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 3)) {
@@ -600,12 +600,12 @@ func (p *CalcParser) expression(_p int) (localctx IExpressionContext) {
 				}
 				{
 					p.SetState(12)
-					p.expression(4)
+					p.expr(4)
 				}
 
 			case 2:
-				localctx = NewAddSubContext(p, NewExpressionContext(p, _parentctx, _parentState))
-				p.PushNewRecursionContext(localctx, _startState, CalcParserRULE_expression)
+				localctx = NewAddSubContext(p, NewExprContext(p, _parentctx, _parentState))
+				p.PushNewRecursionContext(localctx, _startState, CalcParserRULE_expr)
 				p.SetState(13)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 2)) {
@@ -632,7 +632,7 @@ func (p *CalcParser) expression(_p int) (localctx IExpressionContext) {
 				}
 				{
 					p.SetState(15)
-					p.expression(3)
+					p.expr(3)
 				}
 
 			case antlr.ATNInvalidAltNumber:
@@ -667,18 +667,18 @@ errorExit:
 func (p *CalcParser) Sempred(localctx antlr.RuleContext, ruleIndex, predIndex int) bool {
 	switch ruleIndex {
 	case 1:
-		var t *ExpressionContext = nil
+		var t *ExprContext = nil
 		if localctx != nil {
-			t = localctx.(*ExpressionContext)
+			t = localctx.(*ExprContext)
 		}
-		return p.Expression_Sempred(t, predIndex)
+		return p.Expr_Sempred(t, predIndex)
 
 	default:
 		panic("No predicate with index: " + fmt.Sprint(ruleIndex))
 	}
 }
 
-func (p *CalcParser) Expression_Sempred(localctx antlr.RuleContext, predIndex int) bool {
+func (p *CalcParser) Expr_Sempred(localctx antlr.RuleContext, predIndex int) bool {
 	switch predIndex {
 	case 0:
 		return p.Precpred(p.GetParserRuleContext(), 3)

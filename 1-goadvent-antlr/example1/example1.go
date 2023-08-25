@@ -1,3 +1,4 @@
+// Main package
 package main
 
 import (
@@ -10,10 +11,10 @@ import (
 
 func main() {
 	// Setup the input
-	is := antlr.NewInputStream("1 + 2 * 3")
+	input := antlr.NewInputStream("1 + 2 * 3")
 
 	// Create the Lexer
-	lexer := parser.NewCalcLexer(is)
+	lexer := parser.NewCalcLexer(input)
 
 	// Read all tokens
 	for {

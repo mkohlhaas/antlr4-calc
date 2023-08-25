@@ -61,7 +61,6 @@ func (v *Visitor) VisitMulDiv(ctx *parser.MulDivContext) interface{} {
 	//push expression result to stack
 	v.visitRule(ctx.Expression(0))
 	v.visitRule(ctx.Expression(1))
-
 	//push result to stack
 	var t antlr.Token = ctx.GetOp()
 	right := v.pop()
@@ -73,9 +72,7 @@ func (v *Visitor) VisitMulDiv(ctx *parser.MulDivContext) interface{} {
 		v.push(left / right)
 	default:
 		panic("should not happen")
-
 	}
-
 	return nil
 }
 
@@ -117,7 +114,6 @@ func calc(input string) int {
 	p := parser.NewCalcParser(tokens)
 
 	v := NewVisitor()
-	//Start is rule name of Calc.g4
 	p.Start_().Accept(v)
 	return v.pop()
 }

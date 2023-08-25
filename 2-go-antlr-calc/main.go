@@ -1,4 +1,3 @@
-//go:generate ./antlr4 -Xexact-output-dir -o parser -visitor -Dlanguage=Go ./LabeledExpr.g4
 package main
 
 import (
@@ -28,12 +27,10 @@ func main() {
 	var file string
 	opt := getoptions.New()
 	opt.Self("", "Antlr based calculator.\n\n    Call with no arguments to enter repl")
-	// opt.HelpSynopsisArgs("[<single statement>]")
 	opt.Bool("help", false, opt.Alias("?"))
 	opt.Bool("debug", false, opt.Description("Show debug output"))
 	opt.BoolVar(&echo, "echo", false, opt.Description("Enable echo in REPL"))
-	opt.StringVar(&file, "file", "",
-		opt.Description("Read statements from file"), opt.ArgName("filename"))
+	opt.StringVar(&file, "file", "", opt.Description("Read statements from file"), opt.ArgName("filename"))
 	remaining, err := opt.Parse(os.Args[1:])
 	if opt.Called("help") {
 		fmt.Fprintf(os.Stderr, opt.Help())
@@ -48,7 +45,7 @@ func main() {
 	}
 	logger.Println(remaining)
 
-	visitor := NewCalcVisitor()
+	visitor := newCalcVisitor()
 
 	if opt.Called("file") {
 		echo = true
@@ -97,34 +94,31 @@ func parseInput(visitor *CalcVisitor, input string) error {
 	p.RemoveErrorListeners()
 	p.AddErrorListener(new(CalcErrorListener))
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(false))
-	// TODO: BailErrorStrategy is broken right now
-	// p.SetErrorHandler(antlr.NewBailErrorStrategy())
 	tree := p.Prog()
 	visitor.Visit(tree)
 	return nil
 }
 
-// CalcErrorListener - Implements the antlr.ErrorListener interface
 type CalcErrorListener struct {
 	*antlr.DefaultErrorListener
 }
 
 func (ce *CalcErrorListener) SyntaxError(
-	recognizer antlr.Recognizer,
-	offendingSymbol interface{},
+	_ antlr.Recognizer,
+	offendingSymbol any,
 	line, column int,
 	msg string,
-	e antlr.RecognitionException) {
+	_ antlr.RecognitionException) {
 	fmt.Fprintf(os.Stderr, "ERROR: line %d:%d %s\n", line, column, msg)
 }
 
 // underlineError - Couldn't get this to work
 // Book Chapter 9, page 158
-func underlineError(
-	recognizer antlr.Recognizer,
-	offendingSymbol interface{},
-	line, column int) {
-}
+// func underlineError(
+// 	recognizer antlr.Recognizer,
+// 	offendingSymbol any,
+// 	line, column int) {
+// }
 
 // func (ce *CalcErrorListener) ReportAmbiguity(
 // 	recognizer antlr.Parser,
@@ -148,28 +142,29 @@ func underlineError(
 // 	configs antlr.ATNConfigSet) {
 // }
 
-var ErrorBlank = errors.New("Blank Line")
+var errorBlank = errors.New("Blank Line")
 
-// CalcReturn - Visitor parent only returns interface{}
+// CalcReturn - Visitor parent only returns any
 // Need something we can actually work with.
 type CalcReturn struct {
 	Value int
 	Error error
 }
 
+// CalcVisitor is our visitor struct.
 type CalcVisitor struct {
 	parser.BaseLabeledExprVisitor
 
 	memory map[string]int
 }
 
-func NewCalcVisitor() *CalcVisitor {
+func newCalcVisitor() *CalcVisitor {
 	m := make(map[string]int)
 	return &CalcVisitor{memory: m}
 }
 
 // Visit - Returns a CalcReturn.
-func (c *CalcVisitor) Visit(tree antlr.ParseTree) interface{} {
+func (c *CalcVisitor) Visit(tree antlr.ParseTree) any {
 	logger.Printf("visit input type: %v\n", reflect.TypeOf(tree))
 
 	switch t := tree.(type) {
@@ -184,8 +179,7 @@ func (c *CalcVisitor) Visit(tree antlr.ParseTree) interface{} {
 	return CalcReturn{0, fmt.Errorf("visit result not of type CalcReturn")}
 }
 
-// VisitChildren - This visit children implementation is only used for the prog node so it prints the statement.
-func (c *CalcVisitor) VisitChildren(node antlr.RuleNode) interface{} {
+func (c *CalcVisitor) VisitChildren(node antlr.RuleNode) any {
 	for _, n := range node.GetChildren() {
 		logger.Printf("child: %s", n)
 		if echo {
@@ -193,7 +187,7 @@ func (c *CalcVisitor) VisitChildren(node antlr.RuleNode) interface{} {
 		}
 		cr := c.Visit(n.(antlr.ParseTree)).(CalcReturn)
 		if cr.Error != nil {
-			if errors.Is(cr.Error, ErrorBlank) {
+			if errors.Is(cr.Error, errorBlank) {
 				continue
 			}
 			fmt.Fprintf(os.Stderr, "ERROR: %s\n", cr.Error)
@@ -204,17 +198,17 @@ func (c *CalcVisitor) VisitChildren(node antlr.RuleNode) interface{} {
 	return CalcReturn{0, nil}
 }
 
-func (c *CalcVisitor) VisitProg(ctx *parser.ProgContext) interface{} {
+func (c *CalcVisitor) VisitProg(ctx *parser.ProgContext) any {
 	logger.Printf("Calculating Programm: %s", ctx.GetText())
 	return c.VisitChildren(ctx)
 }
 
-func (c *CalcVisitor) VisitPrintExpr(ctx *parser.PrintExprContext) interface{} {
+func (c *CalcVisitor) VisitPrintExpr(ctx *parser.PrintExprContext) any {
 	logger.Printf("VisitPrintExpr: %s", ctx.GetText())
 	return c.Visit(ctx.Expr()).(CalcReturn)
 }
 
-func (c *CalcVisitor) VisitAssign(ctx *parser.AssignContext) interface{} {
+func (c *CalcVisitor) VisitAssign(ctx *parser.AssignContext) any {
 	logger.Printf("VisitAssign: %s", ctx.GetText())
 	id := ctx.ID().GetText()
 	cr := c.Visit(ctx.Expr()).(CalcReturn)
@@ -225,16 +219,16 @@ func (c *CalcVisitor) VisitAssign(ctx *parser.AssignContext) interface{} {
 	return cr
 }
 
-func (c *CalcVisitor) VisitBlank(ctx *parser.BlankContext) interface{} {
-	return CalcReturn{0, ErrorBlank}
+func (c *CalcVisitor) VisitBlank(_ *parser.BlankContext) any {
+	return CalcReturn{0, errorBlank}
 }
 
-func (c *CalcVisitor) VisitParens(ctx *parser.ParensContext) interface{} {
+func (c *CalcVisitor) VisitParens(ctx *parser.ParensContext) any {
 	logger.Printf("VisitParens: %s", ctx.GetText())
 	return c.Visit(ctx.Expr()).(CalcReturn)
 }
 
-func (c *CalcVisitor) VisitMulDiv(ctx *parser.MulDivContext) interface{} {
+func (c *CalcVisitor) VisitMulDiv(ctx *parser.MulDivContext) any {
 	logger.Printf("VisitMulDiv: %s\n", ctx.GetText())
 	crLeft := c.Visit(ctx.Expr(0)).(CalcReturn)
 	if crLeft.Error != nil {
@@ -254,7 +248,7 @@ func (c *CalcVisitor) VisitMulDiv(ctx *parser.MulDivContext) interface{} {
 	return CalcReturn{0, fmt.Errorf("wrong operator '%v'", operator)}
 }
 
-func (c *CalcVisitor) VisitAddSub(ctx *parser.AddSubContext) interface{} {
+func (c *CalcVisitor) VisitAddSub(ctx *parser.AddSubContext) any {
 	logger.Printf("VisitAddSub: %s\n", ctx.GetText())
 	crLeft := c.Visit(ctx.Expr(0)).(CalcReturn)
 	if crLeft.Error != nil {
@@ -274,7 +268,7 @@ func (c *CalcVisitor) VisitAddSub(ctx *parser.AddSubContext) interface{} {
 	return CalcReturn{0, fmt.Errorf("wrong operator '%v'", operator)}
 }
 
-func (c *CalcVisitor) VisitId(ctx *parser.IdContext) interface{} {
+func (c *CalcVisitor) VisitID(ctx *parser.IdContext) any {
 	logger.Printf("VisitID: %s", ctx.GetText())
 	id := ctx.ID().GetText()
 	if value, ok := c.memory[id]; ok {
@@ -283,7 +277,7 @@ func (c *CalcVisitor) VisitId(ctx *parser.IdContext) interface{} {
 	return CalcReturn{0, fmt.Errorf("undefined ID '%s'", id)}
 }
 
-func (c *CalcVisitor) VisitInt(ctx *parser.IntContext) interface{} {
+func (c *CalcVisitor) VisitInt(ctx *parser.IntContext) any {
 	logger.Printf("VisitInt: %s\n", ctx.GetText())
 	i, err := strconv.Atoi(ctx.GetText())
 	if err != nil {

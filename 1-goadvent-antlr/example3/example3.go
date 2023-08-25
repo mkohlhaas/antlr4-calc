@@ -21,19 +21,20 @@ func (l *calcListener) push(i int) {
 
 func (l *calcListener) pop() int {
 	if len(l.stack) < 1 {
-		panic("stack is empty unable to pop")
+		panic("stack is empty, unable to pop")
 	}
 
 	// Get the last value from the stack.
 	result := l.stack[len(l.stack)-1]
 
-	// Pop the last element from the stack.
+	// Remove the last element from the stack.
 	l.stack = l.stack[:len(l.stack)-1]
 
 	return result
 }
 
 // ExitMulDiv is called when exiting the MulDiv production.
+// Calculate multiplication or division and put result on the stack.
 func (l *calcListener) ExitMulDiv(c *parser.MulDivContext) {
 	right, left := l.pop(), l.pop()
 
@@ -48,9 +49,11 @@ func (l *calcListener) ExitMulDiv(c *parser.MulDivContext) {
 }
 
 // ExitAddSub is called when exiting the AddSub production.
+// Calculate addition or subtraction and put result on the stack.
 func (l *calcListener) ExitAddSub(c *parser.AddSubContext) {
 	right, left := l.pop(), l.pop()
 
+	// GetOp() is from 'op=' in the grammar file.
 	switch c.GetOp().GetTokenType() {
 	case parser.CalcParserADD:
 		l.push(left + right)
@@ -62,6 +65,7 @@ func (l *calcListener) ExitAddSub(c *parser.AddSubContext) {
 }
 
 // ExitNumber is called when exiting the Number production.
+// Push number on the stack.
 func (l *calcListener) ExitNumber(c *parser.NumberContext) {
 	i, err := strconv.Atoi(c.GetText())
 	if err != nil {
